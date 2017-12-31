@@ -1,18 +1,64 @@
-const MongoClient = require('mongodb').MongoClient;
-const assert = require('assert');
+var nano = require('nano')('http://localhost:5984');
+const fs = require("fs");
+const path = require("path");
 
-// Connection URL
-const url = 'mongodb://localhost:27017';
+var db = nano.db.use('hmdb');
 
-// Database Name
-const dbName = 'hmdb';
+var sources = [
+	"/Users/d051016/private"
+];
 
-// Use connect method to connect to the server
-MongoClient.connect(url, function(err, client) {
-  assert.equal(null, err);
-  console.log("Connected successfully to server");
+var processDir = function(source) {
+	return function(name) {
+		var fullPath = path.join(source, name);
+		fs.stat(fullPath, function(error, stat) {
+			if (stat.isDirectory()) {
+				fs.readdir(fullPath, function(error, files) {
+					var type;
+					if (files.length > 8) {
+						type = "tv";
+					} else {
+						type = "movie"
+					}
 
-  const db = client.db(dbName);
+					var key = name.toLowerCase();
 
-  client.close();
+					db.get(key, function(error, body) {
+						if (error && error.statusCode === 404) {
+							db.insert({
+								path: [source],
+								type: type,
+								name: name,
+							}, key, function(error, response) {
+								if (error) {
+									console.log("something went wrong");
+								} else {
+									console.log(response);
+								}
+							});
+						} else if (body) {
+							if (body.path.indexOf(source) === -1) {
+								body.path.push(source);
+
+								db.insert(body, function(error, body) {
+									if (!error) {
+										console.log("updated");
+									}
+								})
+							} else {
+								console.log("same as before");
+							}
+						}
+					});
+
+				});
+			}
+		});
+	};
+};
+
+sources.forEach(function(source) {
+	fs.readdir(source, function(error, files) {
+		files.forEach(processDir(source));
+	});
 });
