@@ -2,6 +2,15 @@ var nano = require('nano')('http://localhost:5984');
 const fs = require("fs");
 const path = require("path");
 
+var getSize = require('get-folder-size');
+
+getSize(myFolder, function(err, size) {
+  if (err) { throw err; }
+
+  console.log(size + ' bytes');
+  console.log((size / 1024 / 1024).toFixed(2) + ' Mb');
+});
+
 var db = nano.db.use('hmdb');
 
 var sources = [
@@ -21,35 +30,44 @@ var processDir = function(source) {
 						type = "movie"
 					}
 
-					var key = name.toLowerCase();
+					getSize(fullPath, function(err, size) {
+						if (err) { throw err; }
 
-					db.get(key, function(error, body) {
-						if (error && error.statusCode === 404) {
-							db.insert({
-								path: [source],
-								type: type,
-								name: name,
-							}, key, function(error, response) {
-								if (error) {
-									console.log("something went wrong");
-								} else {
-									console.log(response);
-								}
-							});
-						} else if (body) {
-							if (body.path.indexOf(source) === -1) {
-								body.path.push(source);
+						var key = name.toLowerCase();
 
-								db.insert(body, function(error, body) {
-									if (!error) {
-										console.log("updated");
+						db.get(key, function(error, body) {
+							if (error && error.statusCode === 404) {
+								db.insert({
+									path: [source],
+									type: type,
+									name: name,
+									size: [size]
+								}, key, function(error, response) {
+									if (error) {
+										console.log("something went wrong");
+									} else {
+										console.log(response);
 									}
-								})
-							} else {
-								console.log("same as before");
+								});
+							} else if (body) {
+								if (body.path.indexOf(source) === -1) {
+									body.path.push(source);
+									body.size.push(size);
+
+									db.insert(body, function(error, body) {
+										if (!error) {
+											console.log("updated");
+										}
+									})
+								} else {
+									console.log("same as before");
+								}
 							}
-						}
+						});
+					// console.log(size + ' bytes');
+					// console.log((size / 1024 / 1024).toFixed(2) + ' Mb');
 					});
+
 
 				});
 			}

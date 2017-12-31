@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "get-folder-size": "^1.0.0",
     "nano": "^6.4.2"
   }
 }
