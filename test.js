@@ -4,13 +4,6 @@ const path = require("path");
 
 var getSize = require('get-folder-size');
 
-getSize(myFolder, function(err, size) {
-  if (err) { throw err; }
-
-  console.log(size + ' bytes');
-  console.log((size / 1024 / 1024).toFixed(2) + ' Mb');
-});
-
 var db = nano.db.use('hmdb');
 
 var sources = [
