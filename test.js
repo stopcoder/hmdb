@@ -27,6 +27,13 @@ var isTV = function(files) {
 	}
 };
 
+var hasSubDirectory = function(files, fullPath) {
+	return files.some(function(file) {
+		var stat = fs.statSync(path.join(fullPath, file));
+		return statSync.isDirectory();
+	});
+};
+
 var processDir = function(source) {
 	return function(name) {
 		var fullPath = path.join(source, name);
@@ -34,6 +41,7 @@ var processDir = function(source) {
 			if (stat.isDirectory()) {
 				fs.readdir(fullPath, function(error, files) {
 					var type = isTV(files) ? "tv" : "movie";
+					var subDir = hasSubDirectory(files);
 
 					getSize(fullPath, function(err, size) {
 						if (err) { throw err; }
@@ -47,7 +55,8 @@ var processDir = function(source) {
 									path: [source],
 									type: type,
 									name: name,
-									size: [size]
+									size: [size],
+									subDir: subDir
 								}, key, function(error, response) {
 									if (error) {
 										console.log("something went wrong");
@@ -61,6 +70,8 @@ var processDir = function(source) {
 									body.size.push(size);
 								} else if (type !== body.type) {
 									body.type = type;
+								} else if (subDir !== !!body.subDir) {
+									body.subDir = subDir;
 								} else {
 									changeDetected = false;
 								}
