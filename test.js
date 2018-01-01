@@ -10,18 +10,30 @@ var sources = [
 	"/Users/d051016/private"
 ];
 
+var isTV = function(files) {
+	var rEpisode = /e\d{2}.+\.[mkv|mp4|ts]/i,
+		iCount = 0;
+
+	files.forEach(function(file) {
+		if (rEpisode.test(file)) {
+			iCount++;
+		}
+	});
+
+	if (iCount >= 2) {
+		return true;
+	} else {
+		return false;
+	}
+};
+
 var processDir = function(source) {
 	return function(name) {
 		var fullPath = path.join(source, name);
 		fs.stat(fullPath, function(error, stat) {
 			if (stat.isDirectory()) {
 				fs.readdir(fullPath, function(error, files) {
-					var type;
-					if (files.length > 8) {
-						type = "tv";
-					} else {
-						type = "movie"
-					}
+					var type = isTV(files) ? "tv" : "movie";
 
 					getSize(fullPath, function(err, size) {
 						if (err) { throw err; }
