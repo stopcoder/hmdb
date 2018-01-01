@@ -30,7 +30,7 @@ var isTV = function(files) {
 var hasSubDirectory = function(files, fullPath) {
 	return files.some(function(file) {
 		var stat = fs.statSync(path.join(fullPath, file));
-		return statSync.isDirectory();
+		return stat.isDirectory();
 	});
 };
 
@@ -41,7 +41,7 @@ var processDir = function(source) {
 			if (stat.isDirectory()) {
 				fs.readdir(fullPath, function(error, files) {
 					var type = isTV(files) ? "tv" : "movie";
-					var subDir = hasSubDirectory(files);
+					var subDir = hasSubDirectory(files, fullPath);
 
 					getSize(fullPath, function(err, size) {
 						if (err) { throw err; }
