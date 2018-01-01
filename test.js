@@ -41,6 +41,7 @@ var processDir = function(source) {
 						var key = name.toLowerCase();
 
 						db.get(key, function(error, body) {
+							var changeDetected = true;
 							if (error && error.statusCode === 404) {
 								db.insert({
 									path: [source],
@@ -58,19 +59,24 @@ var processDir = function(source) {
 								if (body.path.indexOf(source) === -1) {
 									body.path.push(source);
 									body.size.push(size);
+								} else if (type !== body.type) {
+									body.type = type;
+								} else {
+									changeDetected = false;
+								}
 
+								if (changeDetected) {
 									db.insert(body, function(error, body) {
 										if (!error) {
 											console.log("updated");
 										}
-									})
+									});
 								} else {
 									console.log("same as before");
 								}
+
 							}
 						});
-					// console.log(size + ' bytes');
-					// console.log((size / 1024 / 1024).toFixed(2) + ' Mb');
 					});
 
 
