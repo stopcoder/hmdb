@@ -11,7 +11,7 @@ var sources = [
 ];
 
 var isTV = function(files) {
-	var rEpisode = /e\d{2}.+\.[mkv|mp4|ts]/i,
+	var rEpisode = /e\d{2}\./i,
 		iCount = 0;
 
 	files.forEach(function(file) {
@@ -85,7 +85,6 @@ var processDir = function(source) {
 								} else {
 									console.log("same as before");
 								}
-
 							}
 						});
 					});
