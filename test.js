@@ -42,7 +42,7 @@ var processDir = function(source) {
 				fs.readdir(fullPath, function(error, files) {
 					var type;
 
-					if (/s\d{2}(?:-s?\d{2})?\./i.test(name)) {
+					if (/s\d{2}(?:-s?\d{2})?/i.test(name)) {
 						type = "tv";
 					} else {
 						type = isTV(files) ? "tv" : "movie";
