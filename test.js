@@ -40,7 +40,14 @@ var processDir = function(source) {
 		fs.stat(fullPath, function(error, stat) {
 			if (stat.isDirectory()) {
 				fs.readdir(fullPath, function(error, files) {
-					var type = isTV(files) ? "tv" : "movie";
+					var type;
+
+					if (/s[\d-]+\./i.test(name)) {
+						type = "tv";
+					} else {
+						type = isTV(files) ? "tv" : "movie";
+					}
+
 					var subDir = hasSubDirectory(files, fullPath);
 
 					getSize(fullPath, function(err, size) {
