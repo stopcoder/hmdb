@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "get-folder-size": "^1.0.0",
-    "nano": "^6.4.2"
+    "nano": "^6.4.2",
+    "ncp": "^2.0.0"
   }
 }
